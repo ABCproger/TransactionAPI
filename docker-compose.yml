@@ -12,7 +12,7 @@ services:
       - "5001:5001"
 
   transaction.database:
-    image: portgres:latest
+    image: postgres:latest
     container_name: transaction.database
     environment:
       - POSTGRES_DB=transaction-api-db
