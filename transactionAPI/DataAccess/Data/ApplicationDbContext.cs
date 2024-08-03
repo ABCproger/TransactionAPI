@@ -16,7 +16,7 @@ namespace transactionAPI.DataAccess.Data
         {
             modelBuilder.Entity<Transaction>(entity =>
             {
-                entity.HasKey(e => e.Id);
+                entity.HasKey(e => e.TransactionId);
                 entity.Property(e => e.TransactionId).HasColumnType("text");
                 entity.Property(e => e.Name).HasColumnType("text");
                 entity.Property(e => e.Email).HasColumnType("text");

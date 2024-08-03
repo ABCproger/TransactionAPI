@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using transactionAPI.DataAccess.Data;
 using transactionAPI.Extensions;
+using transactionAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +25,7 @@ app.ApplyMigrations();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 app.MapControllers();
 
 app.Run();

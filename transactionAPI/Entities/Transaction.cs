@@ -6,8 +6,6 @@ namespace transactionAPI.Entities
     public class Transaction
     {
         [Key]
-        [Column("id")]
-        public int Id { get; set; }
         [Column("transaction_id")]
         public string TransactionId { get; set; }
         [Column("name")]
