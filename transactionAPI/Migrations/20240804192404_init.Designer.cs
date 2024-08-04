@@ -12,7 +12,7 @@ using transactionAPI.DataAccess.Data;
 namespace transactionAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240804082445_init")]
+    [Migration("20240804192404_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -37,17 +37,17 @@ namespace transactionAPI.Migrations
 
                     b.Property<string>("ClientLocation")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("client_location");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("email");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("name");
 
                     b.Property<DateTime>("TransactionDate")

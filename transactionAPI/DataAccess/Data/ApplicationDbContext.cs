@@ -17,11 +17,14 @@ namespace transactionAPI.DataAccess.Data
             modelBuilder.Entity<Transaction>(entity =>
             {
                 entity.HasKey(e => e.TransactionId);
-                //entity.Property(e => e.TransactionId).HasColumnType("text");
-                entity.Property(e => e.Name).HasColumnType("text");
-                entity.Property(e => e.Email).HasColumnType("text");
-                entity.Property(e => e.ClientLocation).HasColumnType("text");
+                entity.Property(e => e.TransactionId).HasColumnName("transaction_id");
+                entity.Property(e => e.Name).HasColumnName("name");
+                entity.Property(e => e.Email).HasColumnName("email");
+                entity.Property(e => e.Amount).HasColumnName("amount");
+                entity.Property(e => e.TransactionDate).HasColumnName("transaction_date");
+                entity.Property(e => e.ClientLocation).HasColumnName("client_location");
             });
         }
+
     }
 }

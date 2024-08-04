@@ -16,11 +16,11 @@ namespace transactionAPI.Migrations
                 columns: table => new
                 {
                     transaction_id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    email = table.Column<string>(type: "text", nullable: false),
+                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     transaction_date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    client_location = table.Column<string>(type: "text", nullable: false)
+                    client_location = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -7,6 +7,7 @@ using System.Globalization;
 using transactionAPI.Data_Transfer_Objects;
 using transactionAPI.Entities;
 using transactionAPI.Services;
+using transactionAPI.Services.Interfaces;
 
 namespace transactionAPI.Controllers
 {
@@ -15,10 +16,12 @@ namespace transactionAPI.Controllers
     public class TransactionsController : ControllerBase
     {
         private readonly TransactionService _transactionService;
+        private readonly IExportDataService _exportDataService;
 
-        public TransactionsController(TransactionService transactionService)
+        public TransactionsController(TransactionService transactionService, IExportDataService exportDataService)
         {
             _transactionService = transactionService;
+            _exportDataService = exportDataService;
         }
         [HttpPost("import")]
         public async Task<IActionResult> ImportTransactions(IFormFile file)
@@ -70,6 +73,14 @@ namespace transactionAPI.Controllers
         {
             var transactions = await _transactionService.GetAllTransactionsAsync();
             return Ok(transactions);
+        }
+        [HttpGet("export")]
+        public async Task<IActionResult> ExportTransactions()
+        {
+            var transactions = await _transactionService.GetAllTransactionsAsync();
+            var excelFile = await _exportDataService.ExportTransactionsToExcelAsync(transactions);
+
+            return File(excelFile, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Transactions.xlsx");
         }
     }
 }

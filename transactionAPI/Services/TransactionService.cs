@@ -47,7 +47,7 @@ namespace transactionAPI.Services
         public async Task<IEnumerable<Transaction>> GetAllTransactionsAsync()
         {
             using var connection = new SqlConnection(_connectionString);
-            var sql = "SELECT * FROM Transactions";
+            var sql = "SELECT transaction_id, name, email, amount, transaction_date, client_location FROM Transactions";
             var transactions = await connection.QueryAsync<Transaction>(sql);
             return transactions;
         }
