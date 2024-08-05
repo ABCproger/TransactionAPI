@@ -43,13 +43,24 @@ namespace transactionAPI.Services
             VALUES (@TransactionId, @Name, @Email, @Amount, @TransactionDate, @ClientLocation)";
             await connection.ExecuteAsync(sql, transaction);
         }
-
         public async Task<IEnumerable<Transaction>> GetAllTransactionsAsync()
         {
             using var connection = new SqlConnection(_connectionString);
-            var sql = "SELECT transaction_id, name, email, amount, transaction_date, client_location FROM Transactions";
-            var transactions = await connection.QueryAsync<Transaction>(sql);
+            const string sql = "SELECT transaction_id, name, email, amount, transaction_date, client_location FROM Transactions";
+            var result = await connection.QueryAsync(sql);
+
+            var transactions = result.Select(row => new Transaction
+            {
+                TransactionId = row.transaction_id,
+                Name = row.name,
+                Email = row.email,
+                Amount = row.amount,
+                TransactionDate = row.transaction_date,
+                ClientLocation = row.client_location
+            });
+
             return transactions;
         }
+
     }
 }
