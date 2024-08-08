@@ -15,13 +15,17 @@ namespace transactionAPI.Controllers
     [ApiController]
     public class TransactionsController : ControllerBase
     {
-        private readonly TransactionService _transactionService;
+        private readonly ITransactionService _transactionService;
         private readonly IExportDataService _exportDataService;
+        private readonly ITimeZoneService _timeZoneService;
 
-        public TransactionsController(TransactionService transactionService, IExportDataService exportDataService)
+        public TransactionsController(ITransactionService transactionService,
+            IExportDataService exportDataService,
+            ITimeZoneService timeZoneService)
         {
             _transactionService = transactionService;
             _exportDataService = exportDataService;
+            _timeZoneService = timeZoneService;
         }
         [HttpPost("import")]
         public async Task<IActionResult> ImportTransactions(IFormFile file)
@@ -69,9 +73,22 @@ namespace transactionAPI.Controllers
             return Ok();
         }
         [HttpGet]
-        public async Task<IActionResult> GetTransactions()
+        public async Task<IActionResult> GetTransactions(
+            [FromQuery] DateTime startDate,
+            [FromQuery] DateTime endDate,
+            [FromQuery] string? userLatitude,
+            [FromQuery] string? userLongtitude)
         {
-            var transactions = await _transactionService.GetAllTransactionsAsync();
+            if (!double.TryParse(userLatitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var latiTude) ||
+       !double.TryParse(userLongtitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var longTitude))
+            {
+                return BadRequest("Invalid latitude or longitude format.");
+            }
+            var zonedStartDate = _timeZoneService.ConvertToZonedDateTime(startDate, latiTude, longTitude);
+            var zonedEndDate = _timeZoneService.ConvertToZonedDateTime(endDate, latiTude, longTitude);
+            var startDateUtc = zonedStartDate.ToDateTimeUtc();
+            var endDateUtc = zonedEndDate.ToDateTimeUtc();
+            var transactions = await _transactionService.GetTransactionsBetweenDates(startDateUtc, endDateUtc);
             return Ok(transactions);
         }
         [HttpGet("export")]

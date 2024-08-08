@@ -8,7 +8,8 @@ using transactionAPI.Services.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddScoped<TransactionService>();
+builder.Services.AddSingleton<ITimeZoneService, TimeZoneService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddTransient<IExportDataService, ExportDataService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -29,7 +30,7 @@ app.ApplyMigrations();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-//app.UseMiddleware<GlobalErrorHandlingMiddleware>();
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 app.MapControllers();
 
 app.Run();

@@ -24,7 +24,15 @@ namespace transactionAPI.Services
                 for (var i = 0; i < properties.Length; i++)
                 {
                     var value = properties[i].GetValue(item);
-                    worksheet.Cells[row, i + 1].Value = value;
+
+                    if (value is DateTime dateTimeValue)
+                    {
+                        worksheet.Cells[row, i + 1].Value = dateTimeValue.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                    }
+                    else
+                    {
+                        worksheet.Cells[row, i + 1].Value = value;
+                    }
                 }
                 row++;
             }
@@ -33,5 +41,6 @@ namespace transactionAPI.Services
 
             return await Task.FromResult(package.GetAsByteArray());
         }
+
     }
 }
