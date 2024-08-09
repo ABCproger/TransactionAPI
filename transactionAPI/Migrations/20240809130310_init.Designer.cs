@@ -12,7 +12,7 @@ using transactionAPI.DataAccess.Data;
 namespace transactionAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240808174046_init")]
+    [Migration("20240809130310_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -65,7 +65,7 @@ namespace transactionAPI.Migrations
                         .HasColumnName("transaction_date_local");
 
                     b.Property<Instant>("TransactionDateUtc")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("transaction_date_utc");
 
                     b.HasKey("TransactionId");

@@ -22,7 +22,7 @@ namespace transactionAPI.Migrations
                     transaction_date_local = table.Column<LocalDateTime>(type: "timestamp without time zone", nullable: false),
                     time_zone_id = table.Column<string>(type: "text", nullable: false),
                     client_location = table.Column<string>(type: "text", nullable: false),
-                    transaction_date_utc = table.Column<Instant>(type: "timestamp without time zone", nullable: false),
+                    transaction_date_utc = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
                     time_zone_rules = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>

@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NodaTime;
 using System.Xml;
 using transactionAPI.Entities;
 
@@ -14,6 +16,7 @@ namespace transactionAPI.DataAccess.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             modelBuilder.Entity<Transaction>(entity =>
             {
                 entity.HasKey(e => e.TransactionId);
@@ -34,7 +37,7 @@ namespace transactionAPI.DataAccess.Data
                       .HasColumnName("client_location");
                 entity.Property(e => e.TransactionDateUtc)
                       .HasColumnName("transaction_date_utc")
-                      .HasColumnType("timestamp without time zone");
+                      .HasColumnType("timestamp with time zone");
                 entity.Property(e => e.TimeZoneRules)
                       .HasColumnName("time_zone_rules");
             });

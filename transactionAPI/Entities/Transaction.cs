@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace transactionAPI.Entities
 {
+    [Table("Transactions")]
     public class Transaction
     {
         [Key]

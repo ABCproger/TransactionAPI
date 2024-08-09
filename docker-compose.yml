@@ -11,11 +11,11 @@ services:
       - "5000:5000"
       - "5001:5001"
 
-  transaction.database:
+  database:
     image: postgres:latest
-    container_name: transaction.database
+    container_name: database
     environment:
-      - POSTGRES_DB=transaction-api-db
+      - POSTGRES_DB=database
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:

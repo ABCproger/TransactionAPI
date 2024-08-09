@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
+using NodaTime.Extensions;
 using System.Formats.Asn1;
 using System.Globalization;
 using transactionAPI.Data_Transfer_Objects;
@@ -27,51 +29,63 @@ namespace transactionAPI.Controllers
             _exportDataService = exportDataService;
             _timeZoneService = timeZoneService;
         }
-        //[HttpPost("import")]
-        //public async Task<IActionResult> ImportTransactions(IFormFile file)
-        //{
-        //    if (file.Length == 0)
-        //    {
-        //        return BadRequest("File not selected");
-        //    }
-        //    var requirements = ".csv";
-        //    var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-        //    if (!requirements.Contains(extension.ToString()))
-        //    {
-        //        return BadRequest("Invalid file extension");
-        //    }
-        //    using var reader = new StreamReader(file.OpenReadStream());
-        //    using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+        [HttpPost("import")]
+        public async Task<IActionResult> ImportTransactions(IFormFile file)
+        {
+            if (file.Length == 0)
+            {
+                return BadRequest("File not selected");
+            }
+            var requirements = ".csv";
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!requirements.Contains(extension.ToString()))
+            {
+                return BadRequest("Invalid file extension");
+            }
+            using var reader = new StreamReader(file.OpenReadStream());
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
-        //    var records = csv.GetRecords<TransactionCsvModel>();
+            var records = csv.GetRecords<TransactionCsvModel>();
 
-        //    foreach (var record in records)
-        //    {
-        //        if (decimal.TryParse(record.Amount.Replace("$", "").Replace(",", ""), NumberStyles.Number, CultureInfo.InvariantCulture, out var amount))
-        //        {
-        //            var transaction = new Transaction
-        //            {
-        //                TransactionId = record.TransactionId,
-        //                Name = record.Name,
-        //                Email = record.Email,
-        //                Amount = amount,
-        //                TransactionDate = DateTime.Parse(record.TransactionDate),
-        //                ClientLocation = record.ClientLocation
-        //            };
+            foreach (var record in records)
+            {
+                var location = _timeZoneService.ParseLocation(record.ClientLocation);
+                var dateTime = DateTime.Parse(record.TransactionDate);
+                var timeZone = _timeZoneService.GetDateTimeZone(location.Latitude, location.Longitude);
+               
+                var localDateTime = LocalDateTime.FromDateTime(dateTime);
+                var utcTime = _timeZoneService.ConvertToUtc(localDateTime, location.Latitude, location.Longitude);
+                var tzdbSource = DateTimeZoneProviders.Tzdb;
 
-        //            if (await _transactionService.TransactionExistsAsync(transaction.TransactionId))
-        //            {
-        //                await _transactionService.UpdateTransactionAsync(transaction);
-        //            }
-        //            else
-        //            {
-        //                await _transactionService.InsertTransactionAsync(transaction);
-        //            }
-        //        }
-        //    }
+                string versionId = tzdbSource.VersionId;
+                if (decimal.TryParse(record.Amount.Replace("$", "").Replace(",", ""), NumberStyles.Number, CultureInfo.InvariantCulture, out var amount))
+                {
+                    var transaction = new Transaction
+                    {
+                        TransactionId = record.TransactionId,
+                        Name = record.Name,
+                        Email = record.Email,
+                        Amount = amount,
+                        TransactionDate = localDateTime,
+                        TimeZoneId = timeZone.ToString(),
+                        ClientLocation = record.ClientLocation,
+                        TransactionDateUtc = utcTime,
+                        TimeZoneRules = versionId
+                    };
 
-        //    return Ok();
-        //}
+                    if (await _transactionService.TransactionExistsAsync(transaction.TransactionId))
+                    {
+                        await _transactionService.UpdateTransactionAsync(transaction);
+                    }
+                    else
+                    {
+                        await _transactionService.InsertTransactionAsync(transaction);
+                    }
+                }
+            }
+
+            return Ok();
+        }
         [HttpGet]
         public async Task<IActionResult> GetTransactions(
             [FromQuery] DateTime startDate,
@@ -89,6 +103,12 @@ namespace transactionAPI.Controllers
             var startDateUtc = zonedStartDate.ToDateTimeUtc();
             var endDateUtc = zonedEndDate.ToDateTimeUtc();
             var transactions = await _transactionService.GetTransactionsBetweenDates(startDateUtc, endDateUtc);
+            return Ok(transactions);
+        }
+        [HttpGet("GETTTTTTTTTTt")]
+        public async Task<IActionResult> gettrans()
+        {
+            var transactions = await _transactionService.GetAllTransactionsAsync();
             return Ok(transactions);
         }
         [HttpGet("export")]

@@ -1,5 +1,9 @@
+using Dapper;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
+using transactionAPI;
 using transactionAPI.DataAccess.Data;
+using transactionAPI.DataAccess.DateTimeHandlers;
 using transactionAPI.Extensions;
 using transactionAPI.Middleware;
 using transactionAPI.Services;
@@ -16,9 +20,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
-                      npgsqlOptions => npgsqlOptions.UseNodaTime());
+options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), npgsqlOptions => npgsqlOptions.UseNodaTime());
 });
+SqlMapper.AddTypeHandler(typeof(LocalDateTime), new LocalDateTimeHandler());
+SqlMapper.AddTypeHandler(typeof(Instant), new InstantHandler());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -26,6 +31,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
 }
 app.ApplyMigrations();
 app.UseHttpsRedirection();

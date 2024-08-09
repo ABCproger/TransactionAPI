@@ -62,7 +62,7 @@ namespace transactionAPI.Migrations
                         .HasColumnName("transaction_date_local");
 
                     b.Property<Instant>("TransactionDateUtc")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("transaction_date_utc");
 
                     b.HasKey("TransactionId");
