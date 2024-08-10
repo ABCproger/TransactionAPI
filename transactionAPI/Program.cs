@@ -1,5 +1,7 @@
 using Dapper;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 using NodaTime;
 using transactionAPI;
 using transactionAPI.DataAccess.Data;
@@ -11,7 +13,12 @@ using transactionAPI.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+        options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+    });
 builder.Services.AddSingleton<ITimeZoneService, TimeZoneService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddTransient<IExportDataService, ExportDataService>();
@@ -37,7 +44,7 @@ app.ApplyMigrations();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-app.UseMiddleware<GlobalErrorHandlingMiddleware>();
+//app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 app.MapControllers();
 
 app.Run();

@@ -10,7 +10,7 @@ namespace transactionAPI.Services.Interfaces
         Task UpdateTransactionAsync(Transaction transaction);
         Task InsertTransactionAsync(Transaction transaction);
         Task<IEnumerable<TransactionDTO>> GetAllTransactionsAsync();
-        Task<IEnumerable<TransactionDTO>> GetTransactionsBetweenDates(DateTime startDate, DateTime endDate);
+        Task<IEnumerable<TransactionDTO>> GetTransactionsBetweenDates(DateTime startDate, DateTime endDate, string timeZoneId);
     }
 
 }

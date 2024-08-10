@@ -3,6 +3,8 @@ using GeoTimeZone;
 using transactionAPI.Services.Interfaces;
 using System.Globalization;
 using transactionAPI.Data_Transfer_Objects;
+using NodaTime.TimeZones;
+using System;
 
 namespace transactionAPI.Services
 {
@@ -19,6 +21,18 @@ namespace transactionAPI.Services
             var timeZoneId = GetTimeZoneId(latitude, longitude);
             return DateTimeZoneProviders.Tzdb[timeZoneId];
         }
+        public DateTimeZone GetDateTimeZone(string timeZoneId)
+        {
+            try
+            {
+                return DateTimeZoneProviders.Tzdb[timeZoneId];
+            }
+            catch (DateTimeZoneNotFoundException)
+            {
+                return null;
+            }
+        }
+
 
         public ZonedDateTime ConvertToZonedDateTime(DateTime dateTime, double latitude, double longitude)
         {
@@ -34,6 +48,22 @@ namespace transactionAPI.Services
 
             return zonedDateTime.ToInstant();
         }
+        public Instant ConvertToUtc(LocalDateTime localDateTime, DateTimeZone dateTimeZone)
+        {
+            if (localDateTime == default)
+            {
+                throw new ArgumentException("The local date time cannot be the default value.", nameof(localDateTime));
+            }
+
+            if (dateTimeZone == null)
+            {
+                throw new ArgumentNullException(nameof(dateTimeZone), "DateTimeZone cannot be null.");
+            }
+
+            var zonedDateTime = localDateTime.InZoneLeniently(dateTimeZone);
+            return zonedDateTime.ToInstant();
+        }
+
         public LocationDto ParseLocation(string clientLocation)
         {
             var parts = clientLocation.Split(',');

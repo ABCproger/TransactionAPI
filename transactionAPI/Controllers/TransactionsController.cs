@@ -2,10 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Extensions;
+using System;
+using System.ComponentModel.DataAnnotations;
 using System.Formats.Asn1;
 using System.Globalization;
+using System.Net;
 using transactionAPI.Data_Transfer_Objects;
 using transactionAPI.Entities;
 using transactionAPI.Services;
@@ -86,25 +90,47 @@ namespace transactionAPI.Controllers
 
             return Ok();
         }
-        [HttpGet]
+        [HttpGet("{timeZoneId}")]
         public async Task<IActionResult> GetTransactions(
-            [FromQuery] DateTime startDate,
-            [FromQuery] DateTime endDate,
-            [FromQuery] string? userLatitude,
-            [FromQuery] string? userLongtitude)
+    [FromQuery, Required] DateTime startDate,
+    [FromQuery, Required] DateTime endDate,
+    string timeZoneId)
         {
-            if (!double.TryParse(userLatitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var latiTude) ||
-       !double.TryParse(userLongtitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var longTitude))
+            var decodedTimeZoneId = WebUtility.UrlDecode(timeZoneId).Replace(" ", "+");
+            ;
+            if (string.IsNullOrEmpty(decodedTimeZoneId))
             {
-                return BadRequest("Invalid latitude or longitude format.");
+                return BadRequest("TimeZoneId is required.");
             }
-            var zonedStartDate = _timeZoneService.ConvertToZonedDateTime(startDate, latiTude, longTitude);
-            var zonedEndDate = _timeZoneService.ConvertToZonedDateTime(endDate, latiTude, longTitude);
-            var startDateUtc = zonedStartDate.ToDateTimeUtc();
-            var endDateUtc = zonedEndDate.ToDateTimeUtc();
-            var transactions = await _transactionService.GetTransactionsBetweenDates(startDateUtc, endDateUtc);
-            return Ok(transactions);
+
+            if (startDate == DateTime.MinValue || endDate == DateTime.MinValue)
+            {
+                return BadRequest("StartDate and EndDate cannot be default values.");
+            }
+
+            if (startDate > endDate)
+            {
+                return BadRequest("StartDate cannot be later than EndDate.");
+            }
+
+            var timeZone = _timeZoneService.GetDateTimeZone(decodedTimeZoneId);
+
+            var localStartDateTime = LocalDateTime.FromDateTime(startDate);
+            var localEndDateTime = LocalDateTime.FromDateTime(endDate);
+
+            var startDateUtc = _timeZoneService.ConvertToUtc(localStartDateTime, timeZone);
+            var endDateUtc = _timeZoneService.ConvertToUtc(localEndDateTime, timeZone);
+
+            var startDateTimeUtc = startDateUtc.ToDateTimeUtc();
+            var endDateTimeUtc = endDateUtc.ToDateTimeUtc();
+
+            var transactions = await _transactionService.GetTransactionsBetweenDates(startDateTimeUtc, endDateTimeUtc, decodedTimeZoneId);
+
+            var serializedTransactions = JsonConvert.SerializeObject(transactions, Formatting.Indented);
+
+            return Content(serializedTransactions, "application/json");
         }
+
         [HttpGet("GETTTTTTTTTTt")]
         public async Task<IActionResult> gettrans()
         {
