@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  transactionapi:
+    image: ${DOCKER_REGISTRY-}transactionapi
+    container_name: transaction.api
+    build:
+      context: .
+      dockerfile: transactionAPI/Dockerfile
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+
+  database:
+    image: postgres:latest
+    container_name: database
+    environment:
+      - POSTGRES_DB=database
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
