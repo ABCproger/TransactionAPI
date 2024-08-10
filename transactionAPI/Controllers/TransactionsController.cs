@@ -92,12 +92,12 @@ namespace transactionAPI.Controllers
         }
         [HttpGet("{timeZoneId}")]
         public async Task<IActionResult> GetTransactions(
-    [FromQuery, Required] DateTime startDate,
-    [FromQuery, Required] DateTime endDate,
-    string timeZoneId)
+            [FromQuery, Required] DateTime startDate,
+            [FromQuery, Required] DateTime endDate,
+            string timeZoneId)
         {
             var decodedTimeZoneId = WebUtility.UrlDecode(timeZoneId).Replace(" ", "+");
-            ;
+
             if (string.IsNullOrEmpty(decodedTimeZoneId))
             {
                 return BadRequest("TimeZoneId is required.");
@@ -121,21 +121,28 @@ namespace transactionAPI.Controllers
             var startDateUtc = _timeZoneService.ConvertToUtc(localStartDateTime, timeZone);
             var endDateUtc = _timeZoneService.ConvertToUtc(localEndDateTime, timeZone);
 
-            var startDateTimeUtc = startDateUtc.ToDateTimeUtc();
-            var endDateTimeUtc = endDateUtc.ToDateTimeUtc();
-
-            var transactions = await _transactionService.GetTransactionsBetweenDates(startDateTimeUtc, endDateTimeUtc, decodedTimeZoneId);
+            var transactions = await _transactionService.GetTransactionsBetweenDates(startDateUtc.ToDateTimeUtc(), endDateUtc.ToDateTimeUtc(), decodedTimeZoneId);
 
             var serializedTransactions = JsonConvert.SerializeObject(transactions, Formatting.Indented);
 
             return Content(serializedTransactions, "application/json");
         }
-
-        [HttpGet("GETTTTTTTTTTt")]
-        public async Task<IActionResult> gettrans()
+        [HttpGet]
+        public async Task<IActionResult> GetTransactions([FromQuery, Required] DateTime startDate, [FromQuery, Required] DateTime endDate)
         {
-            var transactions = await _transactionService.GetAllTransactionsAsync();
-            return Ok(transactions);
+            if (startDate == DateTime.MinValue || endDate == DateTime.MinValue)
+            {
+                return BadRequest("StartDate and EndDate cannot be default values.");
+            }
+
+            if (startDate > endDate)
+            {
+                return BadRequest("StartDate cannot be later than EndDate.");
+            }
+            var transactions = await _transactionService.GetTransactionsBetweenDates(startDate,endDate);
+            var serializedTransactions = JsonConvert.SerializeObject(transactions, Formatting.Indented);
+
+            return Content(serializedTransactions, "application/json");
         }
         [HttpGet("export")]
         public async Task<IActionResult> ExportTransactions()

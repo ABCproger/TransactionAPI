@@ -31,15 +31,15 @@ public class TransactionService : ITransactionService
     {
         using var connection = new NpgsqlConnection(_connectionString);
         const string sql = @"
-    UPDATE ""Transactions""
-    SET name = @Name, 
-        email = @Email, 
-        amount = @Amount, 
-        transaction_date_local = @TransactionDate, 
-        transaction_date_utc = @TransactionDateUtc, 
-        client_location = @ClientLocation,
-        time_zone_rules = @TimeZoneRules
-    WHERE transaction_id = @TransactionId";
+        UPDATE ""Transactions""
+        SET name = @Name, 
+            email = @Email, 
+            amount = @Amount, 
+            transaction_date_local = @TransactionDate, 
+            transaction_date_utc = @TransactionDateUtc, 
+            client_location = @ClientLocation,
+            time_zone_rules = @TimeZoneRules
+        WHERE transaction_id = @TransactionId";
 
         var parameters = new
         {
@@ -61,8 +61,9 @@ public class TransactionService : ITransactionService
     {
         using var connection = new NpgsqlConnection(_connectionString);
         const string sql = @"
-    INSERT INTO ""Transactions"" (transaction_id, name, email, amount, transaction_date_local, transaction_date_utc, time_zone_id, client_location, time_zone_rules)
-    VALUES (@TransactionId, @Name, @Email, @Amount, @TransactionDate, @TransactionDateUtc, @TimeZoneId, @ClientLocation, @TimeZoneRules)";
+        INSERT INTO ""Transactions""
+        (transaction_id, name, email, amount, transaction_date_local, transaction_date_utc, time_zone_id, client_location, time_zone_rules)
+        VALUES (@TransactionId, @Name, @Email, @Amount, @TransactionDate, @TransactionDateUtc, @TimeZoneId, @ClientLocation, @TimeZoneRules)";
 
         var parameters = new
         {
@@ -84,8 +85,8 @@ public class TransactionService : ITransactionService
     {
         using var connection = new NpgsqlConnection(_connectionString);
         const string sql = @"
-SELECT transaction_id, name, email, amount, transaction_date_local, time_zone_id, transaction_date_utc, client_location, time_zone_rules 
-FROM ""Transactions""";
+        SELECT transaction_id, name, email, amount, transaction_date_local, time_zone_id, transaction_date_utc, client_location, time_zone_rules 
+        FROM ""Transactions""";
 
         var result = await connection.QueryAsync(sql);
 
@@ -141,5 +142,36 @@ FROM ""Transactions""";
 
         return transactions;
     }
+    public async Task<IEnumerable<TransactionDTO>> GetTransactionsBetweenDates(DateTime startDate, DateTime endDate)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
 
+        const string sql = @"
+        SELECT transaction_id, name, email, amount, transaction_date_local,time_zone_id, transaction_date_utc, client_location, time_zone_rules 
+        FROM ""Transactions"" 
+        WHERE transaction_date_local BETWEEN @StartDate AND @EndDate";
+
+        var parameters = new
+        {
+            StartDate = startDate,
+            EndDate = endDate,
+        };
+
+        var result = await connection.QueryAsync(sql, parameters);
+
+        var transactions = result.Select(row => new TransactionDTO
+        {
+            TransactionId = row.transaction_id,
+            Name = row.name,
+            Email = row.email,
+            Amount = row.amount,
+            TransactionDate = row.transaction_date_local.ToDateTimeUnspecified(),
+            TimeZoneId = row.time_zone_id,
+            TransactionDateUtc = row.transaction_date_utc.ToDateTimeUtc(),
+            ClientLocation = row.client_location,
+            TimeZoneRules = row.time_zone_rules,
+        });
+
+        return transactions;
+    }
 }
