@@ -37,7 +37,6 @@ Ensure the following NuGet packages are updated to the specified versions:
 - `Microsoft.EntityFrameworkCore` v8.0.7
 - `Microsoft.EntityFrameworkCore.Design` v8.0.7
 - `Microsoft.EntityFrameworkCore.Tools` v8.0.7
-- `Microsoft.VisualStudio.Azure.Containers.Tools.Targets` v1.19.6
 - `Newtonsoft.Json` v13.0.3
 - `NodaTime` v3.1.11
 - `Npgsql.EntityFrameworkCore.PostgreSQL` v8.0.4
