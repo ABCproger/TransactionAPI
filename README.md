@@ -53,6 +53,3 @@ Ensure the following NuGet packages are updated to the specified versions:
 2. Run database migrations using the Package Manager Console:
    ```shell
    Update-Database
-
-
-
