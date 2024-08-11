@@ -42,6 +42,5 @@ namespace transactionAPI.DataAccess.Data
                       .HasColumnName("time_zone_rules");
             });
         }
-
     }
 }
