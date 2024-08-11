@@ -5,15 +5,13 @@
 ```bash
 docker-compose up --build
 ```
-## Navigation
-
-- `transactionAPI`: Rest API
 
 ## Git
 
 ### Branches
 
 - `main`: latest development version
+- `Get-transactions-features` : Latest version of get transactions task
 
 ## Installation
 
