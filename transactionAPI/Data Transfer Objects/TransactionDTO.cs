@@ -1,10 +1,8 @@
-﻿using NodaTime;
-
+﻿
 namespace transactionAPI.Data_Transfer_Objects
 {
     public class TransactionDTO
     {
-
         public string TransactionId { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }

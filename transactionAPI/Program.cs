@@ -10,6 +10,7 @@ using transactionAPI.Extensions;
 using transactionAPI.Middleware;
 using transactionAPI.Services;
 using transactionAPI.Services.Interfaces;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +25,12 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddTransient<IExportDataService, ExportDataService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
+}); 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), npgsqlOptions => npgsqlOptions.UseNodaTime());
@@ -44,7 +50,7 @@ app.ApplyMigrations();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-//app.UseMiddleware<GlobalErrorHandlingMiddleware>();
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 app.MapControllers();
 
 app.Run();
