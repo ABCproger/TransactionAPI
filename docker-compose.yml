@@ -1,5 +1,3 @@
-version: '3.4'
-
 services:
   database:
     image: postgres:latest
@@ -10,15 +8,20 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   transactionapi:
-    image: ${DOCKER_REGISTRY-}transactionapi
-    container_name: transaction.api
     build:
       context: .
       dockerfile: transactionAPI/Dockerfile
+    container_name: transaction.api
     ports:
       - "5000:5000"
       - "5001:5001"
     depends_on:
-      - database
+      database:
+        condition: service_healthy
